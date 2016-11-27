@@ -141,15 +141,63 @@ namespace JedenTrzyPiecSiedem
                     //int max = Possibilities.Max(g => g.Count);
                     //GroupedItems<T> gi = Possibilities.First(g => g.Count == max);
                     //return new List<T> { gi.Lines.First() };
+                    var lessLost = FindLessLostMoveByOnes(infoLines.Data);
+                    if (lessLost.Any())
+                    {
+                        return lessLost;
+                    }
+
                     int min = Possibilities.Min(g => g.Count);
                     GroupedItems<T> gi = Possibilities.First(g => g.Count == min);
                     return new List<T> { gi.Lines.First() };
+
+
 
                     // TODO: find such move, after which next move won't be able to win. If it's not possible, make above move or random
                 }
             }
         }
-        
+
+        // TODO: make less lost move for groups
+        private static List<T> FindLessLostMoveByOnes(List<GroupedItems<T>> toCheck)
+        {
+
+            //Random r = new Random();
+            //foreach (int i in Enumerable.Range(0, toCheck.Count).OrderBy(x => r.Next()))
+            //{
+            //    T il = toCheck.ElementAt(i);
+            //    //}
+            //    //foreach (T il in toCheck)
+            //    //{
+            //    List<T> copy = new List<T>(toCheck);
+            //    copy.Remove(il);
+            //    if (!Test(CalcPossibilities(copy)).Any())
+            //    {
+            //        return new List<T> { il };
+            //    }
+            //}
+            return new List<T>();
+        }
+
+        // TODO: make less lost move for groups
+        private static List<T> FindLessLostMoveByOnes(List<T> toCheck)
+        {
+            Random r = new Random();
+            foreach (int i in Enumerable.Range(0, toCheck.Count).OrderBy(x => r.Next()))
+            {
+                T il = toCheck.ElementAt(i);
+
+                List<T> copy = new List<T>(toCheck);
+                copy.Remove(il);
+                if (!Test(CalcPossibilities(copy)).Any())
+                {
+                    return new List<T> { il };
+                }
+            }
+            return new List<T>();
+        }
+
+
         class OKException : Exception
         {
             public int before;
@@ -186,7 +234,6 @@ namespace JedenTrzyPiecSiedem
                 }
             }
 
-            // checking pairs
             try
             {
                 Random r = new Random();
@@ -211,13 +258,15 @@ namespace JedenTrzyPiecSiedem
                 }
             } catch (OKException e)
             {
-                var groupedToRemove = toCheck.First(l => l.Count == e.before);
-                if (groupedToRemove == null)
+                var groupedToRemove = toCheck.Where(l => l.Count == e.before);
+                if (!groupedToRemove.Any())
                 {
                     throw new Exception("blad");
                 } else
                 {
-                    return GetRemoved(groupedToRemove, e.index, e.count);
+                    Random r = new Random();
+                    int index = Enumerable.Range(0, groupedToRemove.Count()).OrderBy(x => r.Next()).First();
+                    return GetRemoved(groupedToRemove.ElementAt(index), e.index, e.count);
                 }
             }
             return new List<T>();
@@ -228,7 +277,7 @@ namespace JedenTrzyPiecSiedem
             Random r = new Random();
             foreach (int index in Enumerable.Range(0, before).OrderBy(x => r.Next()))
             {
-                foreach (int count in Enumerable.Range(1, before - index + 1).OrderBy(x => r.Next()))
+                foreach (int count in Enumerable.Range(1, before - index).OrderBy(x => r.Next()))
                 {
                     iteration(RemoveFrom(before, index, count), index, count);
                 }
