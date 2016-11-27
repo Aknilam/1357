@@ -152,11 +152,17 @@ namespace JedenTrzyPiecSiedem
                         return lessLost;
                     }
 
-                    //int max = Possibilities.Max(g => g.Count);
-                    //GroupedItems<T> gi = Possibilities.First(g => g.Count == max);
-                    //return new List<T> { gi.Lines.First() };
-                    int min = Possibilities.Min(g => g.Count);
-                    GroupedItems<T> gi = Possibilities.First(g => g.Count == min);
+                    Random r = new Random();
+                    int value;
+                    if (r.Next() % 2 == 0)
+                    {
+                        value = Possibilities.Max(g => g.Count);
+                    }
+                    else
+                    {
+                        value = Possibilities.Min(g => g.Count);
+                    }
+                    GroupedItems<T> gi = Possibilities.First(g => g.Count == value);
                     return new List<T> { gi.Lines.First() };
                 }
             }
