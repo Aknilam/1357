@@ -31,6 +31,13 @@ namespace Tests1357
             CollectionAssert.AreEquivalent(new List<int> { 1, 2 }, Engine.RemoveFrom(7, 1, 4));
             CollectionAssert.AreEquivalent(new List<int> { 2, 1 }, Engine.RemoveFrom(7, 2, 4));
         }
+        [TestMethod]
+        public void TestCheck123WithPairs()
+        {
+            Assert.IsTrue(Engine.Check123WithPairs(new List<int> { 1, 2, 3 }));
+            Assert.IsTrue(Engine.Check123WithPairs(new List<int> { 1, 2, 3, 4, 4 }));
+            Assert.IsTrue(Engine.Check123WithPairs(new List<int> { 1, 1, 2, 3, 1 }));
+        }
 
         class InfoLineMock : IInfoLine
         {
@@ -53,6 +60,91 @@ namespace Tests1357
         [TestMethod]
         public void TestRemoving()
         {
+            var poss = EngineTemplate<InfoLineMock, InfoLinesMock>.CalcPossibilities(
+                new List<InfoLineMock>
+                {
+                    new InfoLineMock
+                    {
+                        Col = 0,
+                        Row = 0
+                    },
+                    new InfoLineMock
+                    {
+                        Col = 0,
+                        Row = 1
+                    },
+                    new InfoLineMock
+                    {
+                        Col = 1,
+                        Row = 1
+                    },
+                    new InfoLineMock
+                    {
+                        Col = 2,
+                        Row = 1
+                    },
+                    new InfoLineMock
+                    {
+                        Col = 0,
+                        Row = 2
+                    },
+                    new InfoLineMock
+                    {
+                        Col = 1,
+                        Row = 2
+                    },
+                    new InfoLineMock
+                    {
+                        Col = 2,
+                        Row = 2
+                    },
+                    new InfoLineMock
+                    {
+                        Col = 3,
+                        Row = 2
+                    },
+                    new InfoLineMock
+                    {
+                        Col = 4,
+                        Row = 2
+                    },
+                    new InfoLineMock
+                    {
+                        Col = 0,
+                        Row = 3
+                    },
+                    //new InfoLineMock
+                    //{
+                    //    Col = 1,
+                    //    Row = 3
+                    //},
+                    //new InfoLineMock
+                    //{
+                    //    Col = 2,
+                    //    Row = 3
+                    //},
+                    //new InfoLineMock
+                    //{
+                    //    Col = 3,
+                    //    Row = 3
+                    //},
+                    //new InfoLineMock
+                    //{
+                    //    Col = 4,
+                    //    Row = 3
+                    //},
+                    new InfoLineMock
+                    {
+                        Col = 5,
+                        Row = 3
+                    },
+                    new InfoLineMock
+                    {
+                        Col = 6,
+                        Row = 3
+                    }
+                });
+            var res = EngineTemplate<InfoLineMock, InfoLinesMock>.FindWhatToRemoveToWin(poss);
         }
     }
 }

@@ -47,7 +47,7 @@ namespace JedenTrzyPiecSiedem
             }
         }
 
-        private static List<GroupedItems<T>> CalcPossibilities(List<T> ils)
+        public static List<GroupedItems<T>> CalcPossibilities(List<T> ils)
         {
             List<GroupedItems<T>> possibilities = new List<GroupedItems<T>>();
             foreach (var groupedByRow in ils.GroupBy(il => il.Row))
@@ -89,7 +89,12 @@ namespace JedenTrzyPiecSiedem
             return groups.ToList().TrueForAll(g => g.Count() % 2 == 0);
         }
 
-        // some has to be different
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="toCheck"></param>
+        /// <param name="some">some has to be different</param>
+        /// <returns></returns>
         public static bool CheckSomeWithPairs(List<int> toCheck, List<int> some)
         {
             var toCheckCopy = new List<int>(toCheck);
@@ -105,10 +110,13 @@ namespace JedenTrzyPiecSiedem
 
             if (somes.All(s => s.Value != null))
             {
-                int firstCount = somes.First().Value.Count();
-                if (somes.All(s => s.Value.Count() == firstCount))
+                int minCount = somes.Min(s => s.Value.Count());
+                if (somes.All(s => s.Value.Count() >= minCount))
                 {
-                    toCheckCopy.RemoveAll(i => some.Any(s => s == i));
+                    for (int i = 0; i < minCount; i++)
+                    {
+                        some.ForEach(s => toCheckCopy.Remove(s));
+                    }
                     return CheckPairs(toCheckCopy);
                 }
             }
@@ -133,70 +141,64 @@ namespace JedenTrzyPiecSiedem
             }
             else
             {
-                var tested = Test(Possibilities);
+                var tested = FindWhatToRemoveToWin(Possibilities);
                 if (tested.Any())
                     return tested;
                 else
                 {
-                    //int max = Possibilities.Max(g => g.Count);
-                    //GroupedItems<T> gi = Possibilities.First(g => g.Count == max);
-                    //return new List<T> { gi.Lines.First() };
-                    var lessLost = FindLessLostMoveByOnes(infoLines.Data);
+                    var lessLost = FindLessLostMove(Possibilities, infoLines.Data);
                     if (lessLost.Any())
                     {
                         return lessLost;
                     }
 
+                    //int max = Possibilities.Max(g => g.Count);
+                    //GroupedItems<T> gi = Possibilities.First(g => g.Count == max);
+                    //return new List<T> { gi.Lines.First() };
                     int min = Possibilities.Min(g => g.Count);
                     GroupedItems<T> gi = Possibilities.First(g => g.Count == min);
                     return new List<T> { gi.Lines.First() };
-
-
-
-                    // TODO: find such move, after which next move won't be able to win. If it's not possible, make above move or random
                 }
             }
         }
 
-        // TODO: make less lost move for groups
-        private static List<T> FindLessLostMoveByOnes(List<GroupedItems<T>> toCheck)
+        class OKListException : Exception
         {
-
-            //Random r = new Random();
-            //foreach (int i in Enumerable.Range(0, toCheck.Count).OrderBy(x => r.Next()))
-            //{
-            //    T il = toCheck.ElementAt(i);
-            //    //}
-            //    //foreach (T il in toCheck)
-            //    //{
-            //    List<T> copy = new List<T>(toCheck);
-            //    copy.Remove(il);
-            //    if (!Test(CalcPossibilities(copy)).Any())
-            //    {
-            //        return new List<T> { il };
-            //    }
-            //}
-            return new List<T>();
+            public List<T> List;
         }
 
-        // TODO: make less lost move for groups
-        private static List<T> FindLessLostMoveByOnes(List<T> toCheck)
+        private static List<T> FindLessLostMove(List<GroupedItems<T>> toCheckGrouped, List<T> toCheck)
         {
-            Random r = new Random();
-            foreach (int i in Enumerable.Range(0, toCheck.Count).OrderBy(x => r.Next()))
+            try
             {
-                T il = toCheck.ElementAt(i);
-
-                List<T> copy = new List<T>(toCheck);
-                copy.Remove(il);
-                if (!Test(CalcPossibilities(copy)).Any())
+                IterateOverGroups(toCheckGrouped, (afterRemove, before, index, count) =>
                 {
-                    return new List<T> { il };
-                }
+                    var groupedToRemove = toCheckGrouped.Where(l => l.Count == before);
+                    if (groupedToRemove.Any())
+                    {
+                        Random r = new Random();
+                        int i = Enumerable.Range(0, groupedToRemove.Count()).OrderBy(x => r.Next()).First();
+                        List<T> toRemove = GetRemoved(groupedToRemove.ElementAt(i), index, count);
+
+
+                        List<T> copy = new List<T>(toCheck);
+                        toRemove.ForEach(tr => copy.Remove(tr));
+                        if (!FindWhatToRemoveToWin(CalcPossibilities(copy)).Any())
+                        {
+                            throw new OKListException
+                            {
+                                List = toRemove
+                            };
+                        }
+                    }
+                });
+            } catch (OKListException e)
+            {
+                return e.List;
             }
+
             return new List<T>();
         }
-
 
         class OKException : Exception
         {
@@ -209,7 +211,7 @@ namespace JedenTrzyPiecSiedem
         /// </summary>
         /// <param name="toCheck"></param>
         /// <returns>list to remove</returns>
-        private static List<T> Test(List<GroupedItems<T>> toCheck)
+        public static List<T> FindWhatToRemoveToWin(List<GroupedItems<T>> toCheck)
         {
             var groups = toCheck.GroupBy(i => i.Count);
             var toCheckInts = toCheck.Select(i => i.Count);
@@ -236,26 +238,21 @@ namespace JedenTrzyPiecSiedem
 
             try
             {
-                Random r = new Random();
-                foreach (int i in Enumerable.Range(0, groups.Count()).OrderBy(x => r.Next()))
+                IterateOverGroups(toCheck, (afterRemove, before, index, count) =>
                 {
-                    IGrouping<int, GroupedItems<T>> group = groups.ElementAt(i);
-                    IterateOverBefore(group.Key, (afterRemove, index, count) =>
+                    List<int> toCheckList = new List<int>(toCheckInts);//.ToList();
+                    toCheckList.Remove(before);
+                    toCheckList.AddRange(afterRemove);
+                    if (CheckPairs(toCheckList) || Check123WithPairs(toCheckList) || Check145WithPairs(toCheckList))
                     {
-                        var toCheckList = toCheckInts.ToList();
-                        toCheckList.Remove(group.Key);
-                        toCheckList.AddRange(afterRemove);
-                        if (CheckPairs(toCheckList) || Check123WithPairs(toCheckList) || Check145WithPairs(toCheckList))
+                        throw new OKException
                         {
-                            throw new OKException
-                            {
-                                before = group.Key,
-                                index = index,
-                                count = count
-                            };
-                        }
-                    });
-                }
+                            before = before,
+                            index = index,
+                            count = count
+                        };
+                    }
+                });
             } catch (OKException e)
             {
                 var groupedToRemove = toCheck.Where(l => l.Count == e.before);
@@ -270,6 +267,21 @@ namespace JedenTrzyPiecSiedem
                 }
             }
             return new List<T>();
+        }
+
+        private static void IterateOverGroups(List<GroupedItems<T>> toCheck, Action<List<int>, int, int, int> iteration)
+        {
+            var groups = toCheck.GroupBy(i => i.Count);
+
+            Random r = new Random();
+            foreach (int i in Enumerable.Range(0, groups.Count()).OrderBy(x => r.Next()))
+            {
+                IGrouping<int, GroupedItems<T>> group = groups.ElementAt(i);
+                IterateOverBefore(group.Key, (afterRemove, index, count) =>
+                {
+                    iteration(afterRemove, group.Key, index, count);
+                });
+            }
         }
 
         private static void IterateOverBefore(int before, Action<List<int>, int, int> iteration)
