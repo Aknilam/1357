@@ -8,19 +8,11 @@ namespace JedenTrzyPiecSiedem
     public class GroupedItems<T>
         where T: class
     {
-        private int cnt = 0;
         public int Count
         {
             get
             {
-                if (cnt != Lines.Count)
-                    throw new Exception();
-                return cnt;
-            }
-            // TODO: remove setter
-            set
-            {
-                cnt = value;
+                return Lines.Count;
             }
         }
         public List<T> Lines { get; set; } = new List<T>();
@@ -87,7 +79,6 @@ namespace JedenTrzyPiecSiedem
         {
             possibilities.Add(new GroupedItems<T>
             {
-                Count = ils.Count,
                 Lines = ils
             });
         }
