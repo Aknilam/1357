@@ -7,7 +7,7 @@ using System.Windows.Media;
 
 namespace JedenTrzyPiecSiedem
 {
-    class InfoLines
+    public class InfoLines : IDataListProvider<InfoLine>
     {
         public static int PaddingX = 40;
         public static int PaddingY = 20;

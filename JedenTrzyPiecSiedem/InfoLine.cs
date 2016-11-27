@@ -6,7 +6,13 @@ using System.Windows.Shapes;
 
 namespace JedenTrzyPiecSiedem
 {
-    public class InfoLine
+    public interface IInfoLine
+    {
+        int Row { get; }
+        int Col { get; }
+    }
+
+    public class InfoLine : IInfoLine
     {
         public Line Line { get; private set; }
         public int Row { get; private set; }

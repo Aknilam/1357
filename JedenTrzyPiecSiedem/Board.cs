@@ -10,7 +10,7 @@ using System.Windows.Shapes;
  
 namespace JedenTrzyPiecSiedem
 {
-    class Board
+    public class Board
     {
         Canvas canvas;
 
@@ -18,11 +18,15 @@ namespace JedenTrzyPiecSiedem
         CuttingLine cuttingLine;
         List<InfoLine> cutted = new List<InfoLine>();
 
-        private InfoLines infoLines;
+        public InfoLines infoLines;
+        private Action onMove;
+        private Action<bool> onFinish;
 
-        public Board(Canvas canvas)
+        public Board(Canvas canvas, Action onMove, Action<bool> onFinish)
         {
             this.canvas = canvas;
+            this.onMove = onMove;
+            this.onFinish = onFinish;
             canvas.VerticalAlignment = VerticalAlignment.Center;
             canvas.HorizontalAlignment = HorizontalAlignment.Center;
             
@@ -43,6 +47,16 @@ namespace JedenTrzyPiecSiedem
             cuttingLine.End(() =>
             {
                 RemoveCutted(cutted);
+
+                if (cutted.Any())
+                {
+                    CheckFinish(false);
+                    if (infoLines.Data.Any())
+                    {
+                        onMove();
+                    }
+                }
+
                 cutted = new List<InfoLine>();
             });
         }
@@ -61,6 +75,20 @@ namespace JedenTrzyPiecSiedem
                 canvas.Children.Remove(c.Line);
                 infoLines.Data.Remove(c);
             });
+        }
+
+        public void ApplyMove(List<InfoLine> toRemove)
+        {
+            if (toRemove != null)
+                RemoveCutted(toRemove);
+        }
+
+        public void CheckFinish(bool autoMadeLastMovement)
+        {
+            if (!infoLines.Data.Any())
+            {
+                onFinish(autoMadeLastMovement);
+            }
         }
 
         private void UpdateBackground(Point min, Point max)

@@ -11,6 +11,7 @@
         <CommandBinding Command="{x:Static local:Game1357.SaveCommand}" Executed="MenuItem_Click_Save"/>
         <CommandBinding Command="{x:Static local:Game1357.AppendCommand}" Executed="MenuItem_Click_Append"/>
         <CommandBinding Command="{x:Static local:Game1357.ResetCommand}" Executed="MenuItem_Click_Reset"/>
+        <CommandBinding Command="{x:Static local:Game1357.TestCommand}" Executed="MenuItem_Click_Test"/>
     </Window.CommandBindings>
     <DockPanel Name="dockPanel1">
         <Menu DockPanel.Dock="Top">
@@ -18,8 +19,18 @@
                 <MenuItem Header="Zapi_sz" Command="{x:Static local:Game1357.SaveCommand}"/>
                 <MenuItem Header="Dopisz" Command="{x:Static local:Game1357.AppendCommand}"/>
                 <MenuItem Header="Resetuj" Command="{x:Static local:Game1357.ResetCommand}"/>
+                <MenuItem Header="Test" Command="{x:Static local:Game1357.TestCommand}"/>
             </MenuItem>
         </Menu>
+        <StackPanel Name="buttons" DockPanel.Dock="Top" Orientation="Horizontal">
+            <Button Name="start" Margin="0 0 5 0" Padding="10 2" Height="22" Click="start_Click">Start</Button>
+            <Button Name="cofnij" Margin="5 0" Padding="10 2" Height="22" Click="cofnij_Click">Cofnij</Button>
+            <StackPanel>
+            <Label>who starts:</Label>
+            <ComboBox Name="who"></ComboBox>
+            </StackPanel>
+            <Label Name="turn"></Label>
+        </StackPanel>
         <Grid Name="main">
             <Canvas Name="canvas"></Canvas>
         </Grid>

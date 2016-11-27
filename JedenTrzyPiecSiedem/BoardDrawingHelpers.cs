@@ -45,16 +45,28 @@ namespace JedenTrzyPiecSiedem
         {
             if (cutted.Count > 1)
             {
+                if (!CheckCuttedByBeingNextTo(cutted))
+                {
+                    cutted.ForEach(il => normalLine(il.Line));
+                    return new List<InfoLine>();
+                }
+            }
+            return cutted;
+        }
+        private static bool CheckCuttedByBeingNextTo(List<InfoLine> cutted)
+        {
+            if (cutted.Count > 1)
+            {
                 var sorted = cutted.Select(c => c.Col).OrderBy(c => c);
                 for (int col = 1; col < sorted.Count(); col++)
                 {
                     if ((sorted.ElementAt(col) - sorted.ElementAt(col - 1)) != 1)
                     {
-                        return new List<InfoLine>();
+                        return false;
                     }
                 }
             }
-            return cutted;
+            return true;
         }
     }
 }

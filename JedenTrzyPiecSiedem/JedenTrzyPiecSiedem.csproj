@@ -60,7 +60,7 @@
     <Compile Include="LineData.cs" />
     <Compile Include="MathHelpers.cs" />
     <Compile Include="Serialize.cs" />
-    <Page Include="MainWindow.xaml">
+    <Page Include="Game1357.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -70,8 +70,8 @@
     </Compile>
     <Compile Include="Engine.cs" />
     <Compile Include="InfoLine.cs" />
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="Game1357.xaml.cs">
+      <DependentUpon>Game1357.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
